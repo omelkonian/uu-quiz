@@ -5,20 +5,18 @@
 
 module Quiz.Handler where
 
+import Control.Monad.IO.Class  (liftIO)
+import Control.Monad.Logger    (runStderrLoggingT)
+import Data.String.Conversions (cs)
 
-import           Control.Monad.IO.Class   (liftIO)
-import           Control.Monad.Logger     (runStderrLoggingT)
-import           Data.String.Conversions  (cs)
+import Database.Persist.Sqlite  (ConnectionPool, createSqlitePool, entityVal,
+                                 get, getBy, insert, runMigration,
+                                 runSqlPersistMPool, runSqlPool)
+import Network.Wai.Handler.Warp as Warp
+import Servant
 
-import           Database.Persist.Sqlite  (ConnectionPool, createSqlitePool,
-                                           entityVal, get, getBy, insert,
-                                           runMigration, runSqlPersistMPool,
-                                           runSqlPool)
-import           Network.Wai.Handler.Warp as Warp
-import           Servant
-
-import           Quiz.Api
-import           Quiz.Model
+import Quiz.Api
+import Quiz.Model
 
 run :: Int -> FilePath -> IO ()
 run port sqliteFile =

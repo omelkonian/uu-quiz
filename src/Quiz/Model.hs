@@ -11,9 +11,9 @@
 
 module Quiz.Model where
 
-import           Data.Aeson
-import           Database.Persist.TH
-import           GHC.Generics
+import Data.Aeson
+import Database.Persist.TH
+import GHC.Generics
 
 share [mkPersist sqlSettings, mkMigrate "migrateAll"] [persistLowerCase|
 Quiz

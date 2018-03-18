@@ -4,10 +4,10 @@
 
 module Quiz.Api where
 
-import           Quiz.Model
+import Data.Proxy
+import Servant.API
 
-import           Data.Proxy
-import           Servant.API
+import Quiz.Model
 
 type ReqDB a = ReqBody '[JSON] a
 type PostDB a = Post '[JSON] (Maybe (Key a))
