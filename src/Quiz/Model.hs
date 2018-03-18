@@ -18,27 +18,27 @@ import GHC.Generics
 share [mkPersist sqlSettings, mkMigrate "migrateAll"] [persistLowerCase|
 Quiz
   description String
-  deriving Show Generic
+  deriving Eq Show Generic
 
 Question
   quizId QuizId
   body String
   order Int
   UniqueQuestion quizId order
-  deriving Show Generic
+  deriving Eq Show Generic
 
 MultipleChoice
   questionId QuestionId
   body String
   order Int
   UniqueChoice questionId order
-  deriving Show Generic
+  deriving Eq Show Generic
 
 OpenText
   questionId QuestionId
   body String
   UniqueOpenText questionId
-  deriving Show Generic
+  deriving Eq Show Generic
 |]
 
 instance FromJSON Quiz
