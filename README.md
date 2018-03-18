@@ -30,6 +30,6 @@
 ## Run the server
 
 ```
-> stack exec central-counter
+> stack exec uu-quiz
 > x-www-browser http://localhost:8081/index.html
 ```

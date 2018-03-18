@@ -1,4 +1,4 @@
-name:                central-counter
+name:                uu-quiz
 version:             0.1.0.0
 synopsis:            Example project, putting servant-purescript, servant-subscriber and purescript-bridge to use.
 homepage:            https://github.com/omelkonian/uu-quiz
@@ -7,9 +7,11 @@ category:            Web,Quiz
 build-type:          Simple
 cabal-version:       >=1.10
 
-executable central-counter
+executable uu-quiz
   main-is:             Main.hs
-  other-modules:       Counter.WebAPI
+  other-modules:       Quiz.Model
+                     , Quiz.Api
+                     , Quiz.Handler
   build-depends:       base >=4.8 && < 6.0
                      , aeson
                      , bytestring
@@ -31,12 +33,17 @@ executable central-counter
                      , transformers
                      , wai
                      , warp
+                     , persistent
+                     , persistent-template
+                     , persistent-sqlite
+                     , string-conversions
   hs-source-dirs:      src
+  ghc-options:         -Wall
   default-language:    Haskell2010
 
 executable psGenerator
   main-is:             PSGenerator.hs
-  other-modules:       Counter.WebAPI
+  other-modules:       Quiz.Model, Quiz.Api
   build-depends:       base >=4.8 && < 6.0
                      , aeson
                      , containers
@@ -52,5 +59,9 @@ executable psGenerator
                      , servant-purescript
                      , servant-subscriber
                      , text
+                     , persistent
+                     , persistent-template
+                     , persistent-sqlite
+                     , string-conversions
   hs-source-dirs:      src
   default-language:    Haskell2010
