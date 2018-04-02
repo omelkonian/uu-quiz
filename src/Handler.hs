@@ -34,4 +34,4 @@ app pool = serve fullApi $ fullServer pool
 fullServer :: ConnectionPool -> Server FullApi
 fullServer pool = quizServer pool
              :<|> frontServer
-             -- :<|> serveDirectory "frontend/dist/"
+             :<|> serveDirectory "static/"

@@ -14,6 +14,7 @@ library
         Backend.Model,
         Backend.Api,
         Backend.Handler,
+        Frontend.Client,
         Frontend.Api,
         Frontend.Handler
     build-depends:
@@ -29,6 +30,9 @@ library
         servant-server >=0.9.1,
         servant-blaze >=0.7.1,
         blaze-html -any,
+        servant-client -any,
+        servant-js -any,
+        js-jquery -any,
         text -any,
         transformers -any,
         wai -any,

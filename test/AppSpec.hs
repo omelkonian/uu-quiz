@@ -4,26 +4,13 @@ import Control.Exception        (ErrorCall (..), throwIO)
 import Data.Maybe               (fromJust, isJust)
 import Network.HTTP.Client      (defaultManagerSettings, newManager)
 import Network.Wai.Handler.Warp
-import Servant
 import Servant.Client
 import Test.Hspec
 import Test.Mockery.Directory
 
-import Backend.Api     (quizApi)
-import Handler (mkApp)
 import Backend.Model
-
--- | Derive client functions.
-mkQuiz            :: Quiz              -> ClientM (Maybe QuizId)
-getQuiz           :: QuizId            -> ClientM (Maybe Quiz)
-mkQuestion        :: Question          -> ClientM (Maybe QuestionId)
-getQuestion       :: QuizId -> Int     -> ClientM (Maybe Question)
-mkMultipleChoice  :: MultipleChoice    -> ClientM (Maybe MultipleChoiceId)
-getMultipleChoice :: QuestionId -> Int -> ClientM (Maybe MultipleChoice)
-mkOpenText        :: OpenText          -> ClientM (Maybe OpenTextId)
-getOpenText       :: QuestionId        -> ClientM (Maybe OpenText)
-mkQuiz :<|> getQuiz :<|> mkQuestion :<|> getQuestion :<|> mkMultipleChoice
-  :<|> getMultipleChoice :<|> mkOpenText :<|> getOpenText = client quizApi
+import Frontend.Client
+import Handler         (mkApp)
 
 -- | Test all low-level endpoints.
 spec :: Spec
