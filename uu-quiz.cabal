@@ -9,9 +9,13 @@ author: Orestis Melkonian
 
 library
     exposed-modules:
-        Quiz.Model
-        Quiz.Api
-        Quiz.Handler
+        Api,
+        Handler,
+        Backend.Model,
+        Backend.Api,
+        Backend.Handler,
+        Frontend.Api,
+        Frontend.Handler
     build-depends:
         base >=4.7 && <5,
         aeson -any,
@@ -23,6 +27,8 @@ library
         mtl -any,
         servant -any,
         servant-server >=0.9.1,
+        servant-blaze >=0.7.1,
+        blaze-html -any,
         text -any,
         transformers -any,
         wai -any,

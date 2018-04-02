@@ -3,36 +3,15 @@
 {-# LANGUAGE TypeFamilies      #-}
 {-# LANGUAGE TypeOperators     #-}
 
-module Quiz.Handler where
+module Backend.Handler where
 
 import Control.Monad.IO.Class  (liftIO)
-import Control.Monad.Logger    (runStderrLoggingT)
-import Data.String.Conversions (cs)
-
-import Database.Persist.Sqlite  (ConnectionPool, createSqlitePool, entityVal,
-                                 get, getBy, insert, runMigration,
-                                 runSqlPersistMPool, runSqlPool)
-import Network.Wai.Handler.Warp as Warp
+import Database.Persist.Sqlite (ConnectionPool, entityVal, get, getBy, insert,
+                                runSqlPersistMPool)
 import Servant
 
-import Quiz.Api
-import Quiz.Model
-
-run :: Int -> FilePath -> IO ()
-run port sqliteFile =
-  Warp.run port =<< mkApp sqliteFile
-
-mkApp :: FilePath -> IO Application
-mkApp sqliteFile = do
-  pool <- runStderrLoggingT $ createSqlitePool (cs sqliteFile) 5
-  runSqlPool (runMigration migrateAll) pool
-  return $ app pool
-
-app :: ConnectionPool -> Application
-app pool = serve fullApi $ fullServer pool
-
-fullServer :: ConnectionPool -> Server FullApi
-fullServer pool = quizServer pool :<|> serveDirectory "frontend/dist/"
+import Backend.Api
+import Backend.Model
 
 quizServer :: ConnectionPool -> Server QuizApi
 quizServer pool =

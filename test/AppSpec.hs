@@ -9,9 +9,9 @@ import Servant.Client
 import Test.Hspec
 import Test.Mockery.Directory
 
-import Quiz.Api     (quizApi)
-import Quiz.Handler (mkApp)
-import Quiz.Model
+import Backend.Api     (quizApi)
+import Handler (mkApp)
+import Backend.Model
 
 -- | Derive client functions.
 mkQuiz            :: Quiz              -> ClientM (Maybe QuizId)

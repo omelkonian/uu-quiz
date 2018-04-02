@@ -9,7 +9,7 @@
 {-# LANGUAGE TemplateHaskell            #-}
 {-# LANGUAGE TypeFamilies               #-}
 
-module Quiz.Model where
+module Backend.Model where
 
 import Data.Aeson
 import Database.Persist.TH

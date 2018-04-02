@@ -1,6 +1,6 @@
 module Main where
 
-import Quiz.Handler (run)
+import Handler (run)
 
 main :: IO ()
-main = run 8081 "sqlite.db"
+main = putStrLn "Listening on port 8081" >> run 8081 "sqlite.db"
