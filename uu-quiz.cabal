@@ -40,6 +40,8 @@ library
         persistent -any,
         persistent-template -any,
         persistent-sqlite -any,
+        -- conduit -any,
+        resourcet -any,
         string-conversions -any
     default-language: Haskell2010
     hs-source-dirs: src

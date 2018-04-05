@@ -12,7 +12,7 @@ import Frontend.Api
 
 frontServer :: Server FrontApi
 frontServer = return html where
-   html :: H.Html
-   html = do
-       H.b "bar"
-       H.i "iik"
+  html :: H.Html
+  html = do
+    H.b "bar"
+    H.i "iik"

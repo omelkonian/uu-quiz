@@ -15,6 +15,7 @@ type PostDB a = Post '[JSON] (Maybe (Key a))
 type GetDB a = Get '[JSON] (Maybe a)
 
 type QuizApi =
+  -- Low-level API
        "quiz" :> ReqDB Quiz :> PostDB Quiz
   :<|> "quiz" :> Capture "quizId" QuizId :> GetDB Quiz
   :<|> "question" :> ReqDB Question :> PostDB Question
@@ -23,6 +24,8 @@ type QuizApi =
   :<|> "multipleChoice" :> Capture "questionId" QuestionId :> Capture "order" Int :> GetDB MultipleChoice
   :<|> "openText" :> ReqDB OpenText :> PostDB OpenText
   :<|> "openText" :> Capture "questionId" QuestionId :> GetDB OpenText
+  -- High-level API
+  :<|> "quizIds" :> Get '[JSON] [QuizId]
 
 quizApi :: Proxy QuizApi
 quizApi = Proxy

@@ -1,73 +1,76 @@
-{-# LANGUAGE DataKinds         #-}
-{-# LANGUAGE OverloadedStrings #-}
-{-# LANGUAGE TypeFamilies      #-}
-{-# LANGUAGE TypeOperators     #-}
+{-# LANGUAGE DataKinds             #-}
+{-# LANGUAGE TypeFamilies          #-}
+{-# LANGUAGE TypeOperators         #-}
 
 module Backend.Handler where
 
-import Control.Monad.IO.Class  (liftIO)
-import Database.Persist.Sqlite (ConnectionPool, entityVal, get, getBy, insert,
-                                runSqlPersistMPool)
+import Control.Monad.IO.Class       (liftIO)
+import Control.Monad.Logger
+import Control.Monad.Trans.Except
+import Control.Monad.Trans.Reader
+import Control.Monad.Trans.Resource
+import Database.Persist.Sqlite
+import Prelude                      hiding ((^^))
 import Servant
 
 import Backend.Api
 import Backend.Model
 
+type DB a = ReaderT SqlBackend (NoLoggingT (ResourceT IO)) a
+
 quizServer :: ConnectionPool -> Server QuizApi
 quizServer pool =
-       quizAddH :<|> quizGetH
-  :<|> questionAddH :<|> questionGetH
-  :<|> multipleChoiceAddH :<|> multipleChoiceGetH
-  :<|> openTextAddH :<|> openTextGetH
+       l1 quizAdd           :<|> l1 quizGet
+  :<|> l1 questionAdd       :<|> l2 questionGet
+  :<|> l1 multipleChoiceAdd :<|> l2 multipleChoiceGet
+  :<|> l1 openTextAdd       :<|> l1 openTextGet
+  :<|> l0 getAllQuizIds
   where
-    quizAddH = liftIO . quizAdd
-    quizGetH = liftIO . quizGet
+    l0 :: DB a -> ExceptT ServantErr IO a
+    l0 = liftIO . flip runSqlPersistMPool pool
+    l1 :: (b -> DB a) -> (b -> ExceptT ServantErr IO a)
+    l1 f b = liftIO $ runSqlPersistMPool (f b) pool
+    l2 :: (b -> c -> DB a) -> (b -> c -> ExceptT ServantErr IO a)
+    l2 f b c = liftIO $ runSqlPersistMPool (f b c) pool
 
-    questionAddH = liftIO . questionAdd
-    questionGetH quizId order = liftIO $ questionGet quizId order
+    getAllQuizIds :: DB [QuizId]
+    getAllQuizIds =
+      selectKeysList [] [Asc QuizId]
 
-    multipleChoiceAddH = liftIO . multipleChoiceAdd
-    multipleChoiceGetH questionId order = liftIO $ multipleChoiceGet questionId order
+    quizAdd :: Quiz -> DB (Maybe QuizId)
+    quizAdd newQuiz = Just <$> insert newQuiz
+    quizGet :: QuizId -> DB (Maybe Quiz)
+    quizGet = get
 
-    openTextAddH = liftIO . openTextAdd
-    openTextGetH = liftIO . openTextGet
-
-    quizAdd :: Quiz -> IO (Maybe QuizId)
-    quizAdd newQuiz = flip runSqlPersistMPool pool $
-      Just <$> insert newQuiz
-    quizGet :: QuizId -> IO (Maybe Quiz)
-    quizGet quizId = flip runSqlPersistMPool pool $
-      get quizId
-
-    questionAdd :: Question -> IO (Maybe QuestionId)
-    questionAdd newQuestion = flip runSqlPersistMPool pool $ do
+    questionAdd :: Question -> DB (Maybe QuestionId)
+    questionAdd newQuestion = do
       exists <- getBy $ UniqueQuestion (questionQuizId newQuestion) (questionOrder newQuestion)
       case exists of
         Nothing -> Just <$> insert newQuestion
         Just _  -> return Nothing
-    questionGet :: QuizId -> Int -> IO (Maybe Question)
-    questionGet quizId order = flip runSqlPersistMPool pool $ do
+    questionGet :: QuizId -> Int -> DB (Maybe Question)
+    questionGet quizId order = do
       mQuestion <- getBy $ UniqueQuestion quizId order
       return $ entityVal <$> mQuestion
 
-    multipleChoiceAdd :: MultipleChoice -> IO (Maybe MultipleChoiceId)
-    multipleChoiceAdd newChoice = flip runSqlPersistMPool pool $ do
+    multipleChoiceAdd :: MultipleChoice -> DB (Maybe MultipleChoiceId)
+    multipleChoiceAdd newChoice = do
       exists <- getBy $ UniqueChoice (multipleChoiceQuestionId newChoice) (multipleChoiceOrder newChoice)
       case exists of
         Nothing -> Just <$> insert newChoice
         Just _  -> return Nothing
-    multipleChoiceGet :: QuestionId -> Int -> IO (Maybe MultipleChoice)
-    multipleChoiceGet questionId order = flip runSqlPersistMPool pool $ do
+    multipleChoiceGet :: QuestionId -> Int -> DB (Maybe MultipleChoice)
+    multipleChoiceGet questionId order = do
       mChoice <- getBy $ UniqueChoice questionId order
       return $ entityVal <$> mChoice
 
-    openTextAdd :: OpenText -> IO (Maybe OpenTextId)
-    openTextAdd newOpen = flip runSqlPersistMPool pool $ do
+    openTextAdd :: OpenText -> DB (Maybe OpenTextId)
+    openTextAdd newOpen = do
       exists <- getBy $ UniqueOpenText (openTextQuestionId newOpen)
       case exists of
         Nothing -> Just <$> insert newOpen
         Just _  -> return Nothing
-    openTextGet :: QuestionId -> IO (Maybe OpenText)
-    openTextGet questionId = flip runSqlPersistMPool pool $ do
+    openTextGet :: QuestionId -> DB (Maybe OpenText)
+    openTextGet questionId = do
       mOpen <- getBy $ UniqueOpenText questionId
       return $ entityVal <$> mOpen

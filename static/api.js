@@ -86,3 +86,13 @@ var getOpenTextByQuestionId = function(questionId, onSuccess, onError)
     , type: 'GET'
     });
 }
+
+var getQuizIds = function(onSuccess, onError)
+{
+  $.ajax(
+    { url: '/quizIds'
+    , success: onSuccess
+    , error: onError
+    , type: 'GET'
+    });
+}

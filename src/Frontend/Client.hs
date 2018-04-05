@@ -21,7 +21,7 @@ getMultipleChoice :: QuestionId -> Int -> ClientM (Maybe MultipleChoice)
 mkOpenText        :: OpenText          -> ClientM (Maybe OpenTextId)
 getOpenText       :: QuestionId        -> ClientM (Maybe OpenText)
 mkQuiz :<|> getQuiz :<|> mkQuestion :<|> getQuestion :<|> mkMultipleChoice
-  :<|> getMultipleChoice :<|> mkOpenText :<|> getOpenText = client quizApi
+  :<|> getMultipleChoice :<|> mkOpenText :<|> getOpenText :<|> _ = client quizApi
 
 -- Generate Javascript files.
 apiJS1 :: Text
