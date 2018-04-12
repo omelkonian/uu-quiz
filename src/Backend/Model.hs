@@ -49,16 +49,3 @@ instance FromJSON MultipleChoice
 instance ToJSON MultipleChoice
 instance FromJSON OpenText
 instance ToJSON OpenText
-
--- Flat versions.
-data FlatQuiz = FlatQuiz
-  { description :: String
-  , question :: [FlatQuestion]
-  }
-data FlatQuestion = FlatQuestion
-  { body :: String
-  , answer :: FlatAnswer
-  }
-type FlatAnswer = Either FlatOpenText FlatMultipleChoice
-type FlatOpenText = String
-type FlatMultipleChoice = [String]

@@ -14,14 +14,21 @@ import Servant.JS
 -- | Derive client functions.
 mkQuiz            :: Quiz              -> ClientM (Maybe QuizId)
 getQuiz           :: QuizId            -> ClientM (Maybe Quiz)
+delQuiz           :: QuizId            -> ClientM ()
 mkQuestion        :: Question          -> ClientM (Maybe QuestionId)
 getQuestion       :: QuizId -> Int     -> ClientM (Maybe Question)
+delQuestion       :: QuizId -> Int     -> ClientM ()
 mkMultipleChoice  :: MultipleChoice    -> ClientM (Maybe MultipleChoiceId)
 getMultipleChoice :: QuestionId -> Int -> ClientM (Maybe MultipleChoice)
+delMultipleChoice :: QuestionId -> Int -> ClientM ()
 mkOpenText        :: OpenText          -> ClientM (Maybe OpenTextId)
 getOpenText       :: QuestionId        -> ClientM (Maybe OpenText)
-mkQuiz :<|> getQuiz :<|> mkQuestion :<|> getQuestion :<|> mkMultipleChoice
-  :<|> getMultipleChoice :<|> mkOpenText :<|> getOpenText :<|> _ = client quizApi
+delOpenText       :: QuestionId        -> ClientM ()
+mkQuiz                  :<|> getQuiz           :<|> delQuiz
+  :<|> mkQuestion       :<|> getQuestion       :<|> delQuestion
+  :<|> mkMultipleChoice :<|> getMultipleChoice :<|> delMultipleChoice
+  :<|> mkOpenText       :<|> getOpenText       :<|> delOpenText
+  :<|> _ = client quizApi
 
 -- Generate Javascript files.
 apiJS1 :: Text
