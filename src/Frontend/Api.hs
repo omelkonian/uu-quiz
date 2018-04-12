@@ -10,7 +10,7 @@ import           Servant
 import           Servant.HTML.Blaze
 import qualified Text.Blaze.Html5   as H
 
-type FrontApi = "html" :> Get '[HTML] H.Html
+type FrontApi = Get '[HTML] H.Html
 
 frontApi :: Proxy FrontApi
 frontApi = Proxy

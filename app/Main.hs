@@ -1,9 +1,14 @@
 module Main where
 
-import Handler (run)
-import Frontend.Client (writeJSFiles)
+import System.Directory (doesFileExist)
+import Control.Monad (unless)
+
+import Frontend.Client  (writeJSFiles)
+import Handler          (run)
 
 main :: IO ()
 main = do
-  writeJSFiles >> putStrLn "Javascript files written"
+  jsExists <- doesFileExist "static/api.js"
+  unless jsExists $
+    writeJSFiles >> putStrLn "Javascript files written"
   putStrLn "Listening on port 8081" >> run 8081 "sqlite.db"
