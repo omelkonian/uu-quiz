@@ -1,9 +1,10 @@
-{-# LANGUAGE DataKinds             #-}
-{-# LANGUAGE TypeFamilies          #-}
-{-# LANGUAGE TypeOperators         #-}
+{-# LANGUAGE DataKinds     #-}
+{-# LANGUAGE TypeFamilies  #-}
+{-# LANGUAGE TypeOperators #-}
 
 module Backend.Handler where
 
+import Control.Monad                (forM, forM_, void)
 import Control.Monad.IO.Class       (liftIO)
 import Control.Monad.Logger
 import Control.Monad.Trans.Except
@@ -20,11 +21,14 @@ type DB a = ReaderT SqlBackend (NoLoggingT (ResourceT IO)) a
 
 quizServer :: ConnectionPool -> Server QuizApi
 quizServer pool =
+  -- Low-level
        l1 quizAdd           :<|> l1 quizGet           :<|> l1 quizDel
   :<|> l1 questionAdd       :<|> l2 questionGet       :<|> l2 questionDel
   :<|> l1 multipleChoiceAdd :<|> l2 multipleChoiceGet :<|> l2 multipleChoiceDel
   :<|> l1 openTextAdd       :<|> l1 openTextGet       :<|> l1 openTextDel
+  -- High-level
   :<|> l0 getAllQuizIds
+  :<|> l1 quizFlatAdd :<|> l1 quizFlatGet
   where
     l0 :: DB a -> ExceptT ServantErr IO a
     l0 = liftIO . flip runSqlPersistMPool pool
@@ -36,6 +40,41 @@ quizServer pool =
     getAllQuizIds :: DB [QuizId]
     getAllQuizIds =
       selectKeysList [] [Asc QuizId]
+
+    quizFlatAdd :: FlatQuiz -> DB (Maybe QuizId)
+    quizFlatAdd newQuiz = do
+      Just qid <- quizAdd $ Quiz (description newQuiz)
+      forM_ (zip [1..] (questions newQuiz)) $ \(order, qu) -> do
+        Just quid <- questionAdd $ Question qid (body qu) order
+        case answer qu of
+          Left ot -> void $
+            openTextAdd $ OpenText quid ot
+          Right cs -> void $ forM_ (zip [1..] cs) $ \(order', c) ->
+            multipleChoiceAdd $ MultipleChoice quid c order'
+      return $ Just qid
+    quizFlatGet :: QuizId -> DB (Maybe FlatQuiz)
+    quizFlatGet qid = do
+      Just q <- quizGet qid
+      qus' <- selectList [QuestionQuizId ==. qid] [Asc QuestionOrder]
+      qus <- forM qus' $ \qu' -> do
+        let quid = entityKey qu'
+        let qu = entityVal qu'
+        ans <- do
+          ot' <- openTextGet quid
+          case ot' of
+            Just ot -> return $ Left $ openTextBody ot
+            Nothing -> do
+              mcs' <- selectList [MultipleChoiceQuestionId ==. quid] [Asc MultipleChoiceOrder]
+              Right <$> forM mcs' (return . multipleChoiceBody . entityVal)
+        return FlatQuestion
+          { body = questionBody qu
+          , answer = ans
+          }
+
+      return $ Just FlatQuiz
+        { description = quizDescription q
+        , questions = qus
+        }
 
     quizAdd :: Quiz -> DB (Maybe QuizId)
     quizAdd newQuiz = Just <$> insert newQuiz

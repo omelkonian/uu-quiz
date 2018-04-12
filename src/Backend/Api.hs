@@ -31,6 +31,8 @@ type QuizApi =
   :<|> "openText" :> Capture "questionId" QuestionId :> DeleteDB
   -- High-level API
   :<|> "quizIds" :> Get '[JSON] [QuizId]
+  :<|> "quizFlat" :> ReqDB FlatQuiz :> PostDB Quiz
+  :<|> "quizFlat" :> Capture "quizId" QuizId :> GetDB FlatQuiz
 
 quizApi :: Proxy QuizApi
 quizApi = Proxy

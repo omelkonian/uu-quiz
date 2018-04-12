@@ -41,6 +41,20 @@ OpenText
   deriving Eq Show Generic
 |]
 
+-- Flat model.
+data FlatQuiz = FlatQuiz
+  { description :: String
+  , questions   :: [FlatQuestion]
+  } deriving (Eq, Show, Generic)
+data FlatQuestion = FlatQuestion
+  { body   :: String
+  , answer :: FlatAnswer
+  } deriving (Eq, Show, Generic)
+type FlatAnswer = Either FlatOpenText FlatMultipleChoice
+type FlatOpenText = String
+type FlatMultipleChoice = [String]
+
+-- JSON conversions.
 instance FromJSON Quiz
 instance ToJSON Quiz
 instance FromJSON Question
@@ -49,3 +63,7 @@ instance FromJSON MultipleChoice
 instance ToJSON MultipleChoice
 instance FromJSON OpenText
 instance ToJSON OpenText
+instance FromJSON FlatQuiz
+instance ToJSON FlatQuiz
+instance FromJSON FlatQuestion
+instance ToJSON FlatQuestion

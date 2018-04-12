@@ -3,11 +3,11 @@ module Frontend.Client where
 import Servant
 import Servant.Client
 
-import Backend.Model
 import Backend.Api
+import Backend.Model
 
-import Data.Text as T (Text)
-import Data.Text.IO as T (writeFile, readFile)
+import Data.Text                  as T (Text)
+import Data.Text.IO               as T (readFile, writeFile)
 import Language.Javascript.JQuery
 import Servant.JS
 
@@ -24,11 +24,16 @@ delMultipleChoice :: QuestionId -> Int -> ClientM ()
 mkOpenText        :: OpenText          -> ClientM (Maybe OpenTextId)
 getOpenText       :: QuestionId        -> ClientM (Maybe OpenText)
 delOpenText       :: QuestionId        -> ClientM ()
+getAllQuizIds     ::                      ClientM [QuizId]
+mkFlatQuiz        :: FlatQuiz          -> ClientM (Maybe QuizId)
+getFlatQuiz       :: QuizId            -> ClientM (Maybe FlatQuiz)
 mkQuiz                  :<|> getQuiz           :<|> delQuiz
   :<|> mkQuestion       :<|> getQuestion       :<|> delQuestion
   :<|> mkMultipleChoice :<|> getMultipleChoice :<|> delMultipleChoice
   :<|> mkOpenText       :<|> getOpenText       :<|> delOpenText
-  :<|> _ = client quizApi
+  :<|> getAllQuizIds
+  :<|> mkFlatQuiz :<|> getFlatQuiz
+    = client quizApi
 
 -- Generate Javascript files.
 apiJS1 :: Text
